@@ -1,0 +1,43 @@
+id: q3_yellow_2020
+namespace: zoomcamp
+
+inputs:
+  - id: taxi
+    type: STRING
+    defaults: yellow
+  - id: year
+    type: STRING
+    defaults: "2020"
+
+tasks:
+  - id: count_rows_all_months
+    type: io.kestra.plugin.scripts.shell.Commands
+    runner: DOCKER
+    commands:
+      - apt-get update -y
+      - apt-get install -y wget gzip coreutils
+      - |
+        TOTAL=0
+
+        for MONTH in 01 02 03 04 05 06 07 08 09 10 11 12
+        do
+          FILE="{{ inputs.taxi }}_tripdata_{{ inputs.year }}-${MONTH}.csv"
+          URL="https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{{ inputs.taxi }}/${FILE}.gz"
+
+          echo "=============================="
+          echo "Downloading ${FILE}"
+          wget "${URL}" -O "${FILE}.gz"
+          gunzip "${FILE}.gz"
+
+          ROWS=$(wc -l < "${FILE}")
+          DATA_ROWS=$((ROWS - 1))   # subtract header
+
+          echo "Rows in ${FILE}: ${DATA_ROWS}"
+
+          TOTAL=$((TOTAL + DATA_ROWS))
+
+          rm -f "${FILE}"
+        done
+
+        echo "=============================="
+        echo "TOTAL ROWS FOR {{ inputs.taxi }} {{ inputs.year }}: ${TOTAL}"
