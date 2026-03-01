@@ -1,0 +1,8 @@
+./code/.venv/
+./homework/yellow_2025_11_repartitioned/
+./code/fhvhv/
+.python-version
+uv.lock
+*.csv
+*.gz
+*.parquet
